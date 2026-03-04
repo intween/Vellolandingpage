@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import pdfFile from '../../assets/벨로 소개서.pdf';
+import pdfFile from '../../assets/벨로_서비스_소개서.pdf';
 
 interface DownloadModalProps {
     isOpen: boolean;
@@ -55,7 +55,7 @@ export function DownloadModal({ isOpen, onClose }: DownloadModalProps) {
         // PDF 다운로드 실행
         const link = document.createElement('a');
         link.href = pdfFile;
-        link.download = '벨로 소개서.pdf';
+        link.download = '벨로_서비스_소개서.pdf';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
