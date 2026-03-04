@@ -61,7 +61,7 @@ export function SupportProcess() {
                 {/* Support Process Label */}
                 <div className="hidden lg:flex justify-center items-center gap-3 mb-6 pr-0 md:pr-10">
                     <div className="w-16 h-[1.5px] bg-[#6BC4B5]/40" />
-                    <span className="text-[#6BC4B5] text-[13px] font-bold leading-tight text-center">
+                    <span className="text-[#6BC4B5] text-[16px] font-bold leading-tight text-center">
                         Vello 기업 지원<br />프로세스
                     </span>
                     <div className="w-16 h-[1.5px] bg-[#6BC4B5]/40" />

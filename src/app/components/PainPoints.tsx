@@ -8,7 +8,7 @@ export function PainPoints() {
   const cards = [
     {
       title: '높은 급여 기대치',
-      desc1: '산업 구직자 평균 희망 초봉',
+      desc1: '신입 구직자 평균 희망 초봉',
       desc2: '4,140만원',
       imageUrl: growthImage,
     },
