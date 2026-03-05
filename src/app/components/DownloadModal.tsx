@@ -33,10 +33,9 @@ export function DownloadModal({ isOpen, onClose }: DownloadModalProps) {
     if (!agreed) setShowAgreeError(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. 유효성 검사
     const newErrors: Record<string, boolean> = {};
     if (!form.company.trim()) newErrors.company = true;
     if (!form.name.trim()) newErrors.name = true;
@@ -48,30 +47,42 @@ export function DownloadModal({ isOpen, onClose }: DownloadModalProps) {
     setErrors(newErrors);
     setShowAgreeError(!agreed);
 
-    if (Object.keys(newErrors).length > 0 || !agreed) {
-      return;
-    }
+    if (Object.keys(newErrors).length > 0 || !agreed) return;
 
+    // 2. 구글 시트 백그라운드 전송 (기다리지 않음)
     const GOOGLE_SHEET_URL = 'YOUR_DEPLOYED_URL_HERE';
     fetch(GOOGLE_SHEET_URL, {
       method: 'POST',
       mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
-    }).catch((err) => console.error('Sheet Sync Error:', err));
+    }).catch((err) => console.error(err));
 
-    const link = document.createElement('a');
-    link.href = pdfFile;
-    link.download = '벨로_서비스_소개서.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const response = await fetch(pdfFile);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = '벨로_서비스_소개서.pdf';
+
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('다운로드 오류:', error);
+      const link = document.createElement('a');
+      link.href = pdfFile;
+      link.download = '벨로_서비스_소개서.pdf';
+      link.click();
+    }
 
     onClose();
     setTimeout(() => {
       setForm({ company: '', name: '', email: '', phone: '', budget: '', experience: '' });
       setAgreed(false);
-      setErrors({});
     }, 300);
   };
 
