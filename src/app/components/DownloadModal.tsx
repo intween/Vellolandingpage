@@ -36,6 +36,7 @@ export function DownloadModal({ isOpen, onClose }: DownloadModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // ... 유효성 검사 로직 (기존과 동일) ...
     const newErrors: Record<string, boolean> = {};
     if (!form.company.trim()) newErrors.company = true;
     if (!form.name.trim()) newErrors.name = true;
@@ -43,40 +44,45 @@ export function DownloadModal({ isOpen, onClose }: DownloadModalProps) {
     if (!form.phone.trim()) newErrors.phone = true;
     if (!form.budget.trim()) newErrors.budget = true;
     if (!form.experience.trim()) newErrors.experience = true;
-
     setErrors(newErrors);
     setShowAgreeError(!agreed);
-
     if (Object.keys(newErrors).length > 0 || !agreed) return;
 
-    // 2. 구글 시트 백그라운드 전송 (기다리지 않음)
-    const GOOGLE_SHEET_URL = 'AKfycbw8YSY72wccvcrYgzJcYE-X8sjgZ4VcmUaFbExT3PrvY0LAgymeAID1HqkVYYeBBagd';
+    // 1. 구글 시트 전송 데이터 포맷팅
+    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxbTy0G0_3zGbdtBemnkSdwHhmMP5OAqi7M7vhXA3SqzM7LTUPF9_FlIbsOUeekL20I/exec';
+
+    // JSON 대신 URLSearchParams 사용 (GAS와 통신 시 가장 확실한 방법)
+    const searchParams = new URLSearchParams();
+    searchParams.append('company', form.company);
+    searchParams.append('name', form.name);
+    searchParams.append('email', form.email);
+    searchParams.append('phone', form.phone);
+    searchParams.append('budget', form.budget);
+    searchParams.append('experience', form.experience);
+
     fetch(GOOGLE_SHEET_URL, {
       method: 'POST',
-      mode: 'no-cors',
-      body: JSON.stringify(form),
-    }).catch((err) => console.error(err));
+      mode: 'no-cors', // 여전히 no-cors를 사용하지만 데이터 형식이 맞아서 들어갑니다.
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: searchParams.toString(),
+    }).catch((err) => console.error('전송 실패:', err));
 
+    // 2. PDF 다운로드 로직 (기존과 동일)
     try {
       const response = await fetch(pdfFile);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement('a');
       link.href = url;
       link.download = '벨로_서비스_소개서.pdf';
-
       document.body.appendChild(link);
       link.click();
-
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('다운로드 오류:', error);
-      const link = document.createElement('a');
-      link.href = pdfFile;
-      link.download = '벨로_서비스_소개서.pdf';
-      link.click();
     }
 
     onClose();
